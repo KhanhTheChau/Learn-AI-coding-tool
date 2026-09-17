@@ -10,6 +10,7 @@
 
 | Bước | Mô tả chi tiết | Trạng thái | File output | Ngày xong |
 |---|---|---|---|---|
+| **0.1** | Sync Git (Pull main, tạo nhánh `feature/...`) | ⬜ pending | Local Repo | |
 | **1.1** | Phân tích yêu cầu & Bóc tách Acceptance Criteria (AC) | ✅ done | `docs/tickets/04_PIPELINE-VIDEO/requirements.md` | 2026-09-17 |
 | **1.2** | Thiết kế Pydantic Schemas (Request/Response) | ⬜ pending | *Ghi chung vào design.md* | |
 | **1.3** | Thiết kế luồng xử lý Asynchronous (Background Task) | ⬜ pending | *Ghi chung vào design.md* | |
