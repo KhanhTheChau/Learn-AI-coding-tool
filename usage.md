@@ -15,6 +15,12 @@ Khi xử lý một chức năng, Agent rất dễ bị "ảo giác" (hallucinate
 
 ## 2. Quy trình 4 Bước Cốt Lõi (Chi tiết)
 
+### Bước 0: Chuẩn bị Môi trường (Git Sync)
+**Mục tiêu:** Đảm bảo Agent làm việc trên nhánh độc lập, luôn lấy code mới nhất và không gây conflict.
+**Chi tiết công việc:**
+1. Chuyển về nhánh chính và cập nhật: `git checkout main` -> `git pull`.
+2. Tạo và chuyển sang nhánh mới cho riêng ticket này: `git checkout -b feature/<ticket-number>-<ticket-id>`.
+
 ### Bước 1: Phân tích & Thiết kế Kiến trúc (Senior BA & Architect)
 **Mục tiêu:** Hiểu rõ yêu cầu và chốt hạ toàn bộ kiến trúc & API Contract trước khi viết code.
 **Chi tiết công việc:**

@@ -10,6 +10,7 @@
 
 | Bước | Mô tả chi tiết | Trạng thái | File output | Ngày xong |
 |---|---|---|---|---|
+| **0.1** | Sync Git (Pull main, tạo nhánh `feature/...`) | ⬜ pending | Local Repo | |
 | **1.1** | Phân tích yêu cầu & Bóc tách Acceptance Criteria (AC) | ⬜ pending | `docs/tickets/[ticket-number]_[TICKET-ID]/requirements.md` | |
 | **1.2** | Thiết kế Pydantic Schemas (Request/Response) | ⬜ pending | `docs/tickets/[ticket-number]_[TICKET-ID]/design.md` | |
 | **1.3** | Thiết kế luồng xử lý Asynchronous (Background Task) | ⬜ pending | *Ghi chung vào design.md* | |
