@@ -60,8 +60,9 @@ Khi xử lý một chức năng, Agent rất dễ bị "ảo giác" (hallucinate
    - Lệnh khởi chạy server (`uvicorn src.main:app --reload`).
    - Lệnh cURL mẫu để Submit Video Job.
    - Lệnh cURL mẫu để Check Status Job.
-3. **Commit & Chuẩn bị MR (Merge Request):** Khi code đã pass mọi bài test:
-   - **BẮT BUỘC:** Phải cập nhật file `workflow-state.md` thành `✅ done` cho tất cả các mục của Bước 4 (bao gồm cả mục 4.3 Git Commit) **TRƯỚC KHI** chạy lệnh commit.
+3. Viết tài liệu Hướng dẫn Test tay (Manual Test) cho người dùng tại `docs/tickets/[ticket-number]_[TICKET-ID]/manual_test.md` (bao gồm các bước tương tác với API bằng cURL/Postman, cách check log, xác minh DB).
+4. **Commit & Chuẩn bị MR (Merge Request):** Khi code đã pass mọi bài test:
+   - **BẮT BUỘC:** Phải cập nhật file `workflow-state.md` thành `✅ done` cho tất cả các mục của Bước 4 (bao gồm cả mục 4.4 Git Commit) **TRƯỚC KHI** chạy lệnh commit.
    - Thực hiện add và commit code theo chuẩn Conventional Commits (ví dụ: `feat(#ticket-id): add job pipeline`).
    - Đẩy code lên GitHub (`git push -u origin <branch-name>`).
    - **BẮT BUỘC:** Cung cấp cho user **đường link tạo Pull Request** (xuất hiện trong log Terminal khi push).

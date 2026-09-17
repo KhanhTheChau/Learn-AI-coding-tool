@@ -38,6 +38,7 @@ Hãy đọc phần dữ liệu đầu vào tôi cung cấp bên dưới, sau đ�
 5. **Kết luận cuối cùng:** 
    - **PASS** (Tổng điểm >= 48/60 và không vi phạm lỗi Fatal như dùng `time.sleep`).
    - **FAIL** (Tổng điểm < 48/60 hoặc vi phạm lỗi Fatal).
+6. **Định dạng Output:** BẮT BUỘC trả về kết quả dưới định dạng Markdown (.md) chuẩn để người dùng dễ đọc.
 
 ---
 **[Dữ liệu đầu vào cần Review]:**

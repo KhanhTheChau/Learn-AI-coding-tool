@@ -30,12 +30,10 @@ Server sẽ chạy tại `http://localhost:8000`. Kiểm tra API Health Check:
 curl http://localhost:8000/health
 ```
 
-### 3. API Tham khảo (Sẽ triển khai ở Ticket 02)
+### 3. API Tham khảo
 Lệnh cURL mẫu để Submit Video Job:
 ```bash
-curl -X POST http://localhost:8000/api/v1/jobs \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Giải thích phản ứng Oxi hóa khử"}'
+curl -X POST http://localhost:8000/api/v1/jobs -H "Content-Type: application/json" -d "{\"query\": \"Giải thích phản ứng Oxi hóa khử\"}"
 ```
 
 Lệnh cURL mẫu để Check Status Job:
