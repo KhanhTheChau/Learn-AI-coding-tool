@@ -25,6 +25,7 @@
 
 **Quy ước trạng thái:** `⬜ pending` -> `⏳ in_progress` -> `✅ done`
 Chỉ đánh `✅ done` khi **đã lưu file output** VÀ **user đã confirm** hạng mục đó.
+**BẮT BUỘC:** Phải hoàn thành tích hết toàn bộ các bước mới được tạo MR code (Riêng các mục của Bước 4 cho phép đánh `✅ done` trước khi thực sự chạy lệnh Git Commit/MR).
 
 ## Ghi chú gián đoạn (Điền khi task bị ngắt giữa chừng)
 - Lần cuối làm tới: [Bước X.Y — mô tả]
