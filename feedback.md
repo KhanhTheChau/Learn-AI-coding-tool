@@ -3,43 +3,37 @@
 ### 1. Chấm điểm chi tiết
 
 * **1. Kiến trúc (Architecture): 10/10**
-* Hệ thống đã phân chia rõ ràng các module bao gồm `models`, `services`, `dependencies`, `routers` và `main.py`. Cấu trúc này tuân thủ đúng mô hình phân lớp (Layered Architecture).
+* *Nhận xét:* Xuất sắc. Quá trình triển khai đã chia tách logic rõ ràng bằng cách tạo mới module `src/ai/video_generator.py` cho phần lõi AI. Việc thêm `src/dependencies.py` giúp quản lý các service sạch sẽ và tuân thủ đúng Layered Architecture.
 
 
 
 
 * **2. Hiệu suất (Non-blocking): 10/10**
-* Endpoint `POST /jobs` được thiết kế để trả về HTTP 202 Accepted.
-
-
-* Luồng xử lý AI đã được đẩy vào `fastapi.BackgroundTasks` an toàn và sử dụng `await asyncio.sleep(5)` thay vì lệnh `time.sleep()` gây nghẽn luồng.
+* *Nhận xét:* Tốt. Dù báo cáo chỉ tóm tắt, nhưng luồng xử lý gọi `await ai_gen.generate_with_retry(job.query)` chạy bất đồng bộ kết hợp với luồng Background Task đã có sẵn đảm bảo an toàn, không có dấu hiệu block event loop.
 
 
 
 
 * **3. Độ chính xác (State Machine & Resilience): 10/10**
-* Background Task đã được bọc trong khối `try...except` để bắt mọi lỗi phát sinh.
-
-
-* Khi có lỗi xảy ra, trạng thái Job tự động cập nhật về `FAILED`, ngăn chặn tình trạng crash ứng dụng hoặc kẹt trạng thái xử lý.
+* *Nhận xét:* Rất tuyệt vời. Đã triển khai được hàm Guardrails `validate_chemistry_keywords` để chống AI ảo giác. Cơ chế Retry 3 lần kết hợp với khối try-except bọc sẵn sẽ tự động catch lỗi khi hết lượt và đưa Job vào trạng thái `FAILED`. Đáp ứng 100% tiêu chí độ tin cậy.
 
 
 
 
 * **4. Tính nhất quán (Consistency & Clean Code): 10/10**
-* Đã triển khai Dependency Injection thông qua file `src/dependencies.py` với hàm `get_job_repository()` để tiêm `InMemoryJobRepository`. Tránh được việc sử dụng global dictionary gán cứng.
+* *Nhận xét:* Hoàn hảo. Đã tiếp thu triệt để feedback ở bước Design bằng cách sử dụng `Depends()` để tiêm (inject) `AIVideoGenerator` vào hàm `submit_job` tại Router, từ đó truyền xuống cho `process_video_job`. Việc áp dụng Singleton `_ai_video_generator` cũng là một thiết kế rất thông minh và tiết kiệm tài nguyên.
 
 
 
 
-* **5. Testing: 0/10**
-* Tài liệu `implementation.md` hoàn toàn không đề cập đến việc tạo thư mục `tests/` hoặc triển khai bất kỳ file unit test nào. Thiếu cơ chế kiểm thử tự động giả lập (mock) luồng LLM bằng `AsyncMock`.
+* **5. Testing (Unit Test): 0/10**
+* *Nhận xét:* Kém. Toàn bộ danh sách các file thay đổi/tạo mới trong tài liệu Implementation hoàn toàn vắng bóng thư mục `tests/`. Không có bất kỳ minh chứng nào cho việc sử dụng `AsyncMock` để giả lập quá trình LLM thất bại hay kiểm tra số lần retry của AI.
 
 
 
 
-* **6. Bảo mật & Validation (Security & Data Validation): 10/10**
-* Model `JobCreateRequest` đã áp dụng Pydantic validation với các ràng buộc `min_length=5` và `max_length=1000`. Điều này ngăn chặn hiệu quả các payload rỗng hoặc tấn công bơm dữ liệu (Prompt Injection) quá lớn.
+* **6. Bảo mật & Validation (Security & Data Validation): 0/10**
+* *Nhận xét:* Không đạt. Tài liệu chỉ tập trung triển khai Guardrails kiểm tra kết quả đầu ra (Output) nhưng hoàn toàn không đề cập đến việc áp dụng Pydantic Validation (giới hạn `max_length`, `min_length`) cho chuỗi truy vấn đầu vào (Input) để chống Prompt Injection.
 
 
 
@@ -49,44 +43,58 @@
 
 ### 2. Tổng điểm
 
-**50 / 60**
+**40 / 60**
 
 ---
 
 ### 3. Phân tích vi phạm
 
-Tài liệu triển khai không có bất kỳ dấu vết nào của Unit Test. Tiêu chí số 5 bị điểm 0 do hoàn toàn thiếu vắng các file kiểm thử bằng Pytest. Trong một dự án quản lý tiến trình bất đồng bộ, việc không có test tự động (đặc biệt là test cho các luồng ngoại lệ và mock luồng gọi AI) sẽ dẫn đến rủi ro hồi quy (regression) rất cao khi mở rộng tính năng.
+* **Vi phạm tiêu chí 5 (Testing):** Mặc dù logic viết rất tốt, nhưng dự án thiếu Unit Test chứng minh `generate_with_retry` hoạt động đúng. Nếu không có test mock bằng `AsyncMock` bọc luồng LLM, khi nâng cấp thư viện AI trong tương lai, code sẽ rất dễ bị vỡ (regression) mà không phát hiện được.
+* **Vi phạm tiêu chí 6 (Bảo mật & Validation):** Không có thay đổi nào trong `src/models/` được liệt kê. Bỏ lọt Validation đầu vào là một rủi ro lớn gây tốn tiền API và quá tải hệ thống nếu user spam chuỗi quá dài.
+
+
 
 ---
 
 ### 4. Đề xuất sửa lỗi
 
-Cần bổ sung ngay một file test (ví dụ: `tests/test_video_service.py`) sử dụng `AsyncMock` để kiểm tra khối `try...except` trong `process_video_job`:
+**Sửa lỗi 5: Bổ sung file Unit Test (`tests/test_ai_generator.py`)**
+Cần bổ sung một file test sử dụng `AsyncMock` để đảm bảo cơ chế Retry chạy đúng số lần thiết lập và ném lỗi hợp lệ:
 
 ```python
 import pytest
 from unittest.mock import AsyncMock
-from src.services.video_service import process_video_job
-from src.models.job import JobStatus
+from src.ai.video_generator import AIVideoGenerator
 
 @pytest.mark.asyncio
-async def test_process_video_job_failure_updates_status_to_failed():
-    # Arrange
-    mock_repo = AsyncMock()
-    job_id = "test-job-123"
+async def test_generate_with_retry_fails_after_3_attempts():
+    ai_gen = AIVideoGenerator()
     
-    # Giả lập lỗi từ API LLM (OpenAI timeout hoặc rate limit)
-    mock_ai_call = AsyncMock(side_effect=Exception("LLM Timeout"))
+    # Mock AI luôn trả về kết quả không có từ khóa hóa học (Hallucination)
+    ai_gen._mock_ai_call = AsyncMock(return_value="Nội dung tào lao không liên quan")
     
-    # Act
-    try:
-        await mock_repo.update_status(job_id, JobStatus.PROCESSING)
-        await mock_ai_call()
-    except Exception as e:
-        await mock_repo.update_status(job_id, JobStatus.FAILED, error_message=str(e))
+    # Kỳ vọng hàm sẽ quăng ra lỗi ValueError sau khi đã thử đủ 3 lần
+    with pytest.raises(ValueError, match="Hallucination detected"):
+        await ai_gen.generate_with_retry("Một query bất kỳ", max_retries=3)
         
-    # Assert
-    mock_repo.update_status.assert_called_with(job_id, JobStatus.FAILED, error_message="LLM Timeout")
+    # Xác nhận hàm call AI đã bị gọi chính xác 3 lần
+    assert ai_gen._mock_ai_call.call_count == 3
+
+```
+
+**Sửa lỗi 6: Cập nhật Router/Model để Validate Input**
+Nếu chưa làm, cần sửa đổi ngay schema (trong `src/models/` hoặc trực tiếp tại Request Body):
+
+```python
+from pydantic import BaseModel, Field
+
+class JobCreateRequest(BaseModel):
+    query: str = Field(
+        ..., 
+        min_length=5, 
+        max_length=500, # Ngăn chặn spam text quá dài (Prompt Injection)
+        description="Nội dung hóa học cần tạo video"
+    )
 
 ```
 
@@ -94,6 +102,6 @@ async def test_process_video_job_failure_updates_status_to_failed():
 
 ### 5. Kết luận cuối cùng
 
-**PASS**
+❌ **FAIL**
 
-Hệ thống đạt 50/60 điểm (vượt mức 48/60) và tuân thủ nghiêm ngặt các quy tắc non-blocking, không vi phạm lỗi Fatal như dùng `time.sleep()`. Kiến trúc và xử lý lỗi được thiết kế rất tốt, tuy nhiên cần bổ sung Unit Test trước khi đưa code vào môi trường Production.
+**Lý do:** Tổng điểm chỉ đạt **40/60** (thấp hơn mức 48/60). Mặc dù bản Implementation đã khắc phục rất xuất sắc lỗi tight-coupling (viết Dependency Injection cực kỳ chuẩn mực) và xây dựng cơ chế Resilience cực tốt, người thực thi lại **hoàn toàn phớt lờ phần viết Test và Input Validation**. Đối với một hệ thống đòi hỏi quản lý trạng thái khắt khe, không có Unit Test để tự động chứng minh vòng lặp Retry thành công là một điểm trừ chí mạng. Yêu cầu Code/Agent quay lại bổ sung thư mục `tests/` và update Pydantic Validation trước khi Pass ticket này!

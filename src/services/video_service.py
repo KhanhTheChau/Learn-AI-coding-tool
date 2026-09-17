@@ -2,10 +2,11 @@ import asyncio
 import logging
 from src.models.job import JobStatus
 from src.repositories.job_repository import JobRepository
+from src.ai.video_generator import AIVideoGenerator
 
 logger = logging.getLogger(__name__)
 
-async def process_video_job(job_id: str, repo: JobRepository):
+async def process_video_job(job_id: str, repo: JobRepository, ai_gen: AIVideoGenerator):
     """
     Background task to process a video generation job.
     """
@@ -20,8 +21,8 @@ async def process_video_job(job_id: str, repo: JobRepository):
         job.status = JobStatus.PROCESSING
         repo.update(job)
         
-        # Giả lập logic sinh video AI tốn thời gian
-        await asyncio.sleep(5)
+        # Sử dụng AIVideoGenerator (có sẵn cơ chế Retry và Validate)
+        video_script = await ai_gen.generate_with_retry(job.query)
         
         # Cập nhật status thành COMPLETED kèm artifact path giả lập
         job.status = JobStatus.COMPLETED
