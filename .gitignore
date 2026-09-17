@@ -1,0 +1,18 @@
+# Tệp tin cấu hình môi trường Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+
+# Biến môi trường (Mật khẩu, API Keys)
+.env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+
+# File tạm, logs
+*.log
+scratch/

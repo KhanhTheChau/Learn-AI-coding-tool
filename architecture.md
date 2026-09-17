@@ -4,6 +4,7 @@
 
 ## 1. Tổng quan Kiến trúc (Architecture Pattern)
 - **Mô hình:** Layered Architecture (Kiến trúc phân lớp).
+- **Khả năng mở rộng (Extensibility):** Hệ thống phải được thiết kế dạng module để có thể dễ dàng mở rộng sang các môn STEM khác (Vật lý, Sinh học) trong tương lai mà không cần đập đi xây lại Core Engine.
 - **Quy tắc bắt buộc:**
   - `Router` (Endpoints) KHÔNG CHỨA business logic. Chỉ validate Request (Pydantic) và gọi Service.
   - `Service` chứa business logic cốt lõi và chịu trách nhiệm gọi Background Task.
