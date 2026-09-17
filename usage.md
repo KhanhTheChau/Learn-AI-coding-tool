@@ -52,7 +52,11 @@ Khi xử lý một chức năng, Agent rất dễ bị "ảo giác" (hallucinate
    - Lệnh khởi chạy server (`uvicorn src.main:app --reload`).
    - Lệnh cURL mẫu để Submit Video Job.
    - Lệnh cURL mẫu để Check Status Job.
-3. **Commit & Tạo MR (Merge Request):** Khi code đã pass mọi bài test, thực hiện commit code theo chuẩn Conventional Commits (ví dụ: `feat(#ticket-id): add job pipeline`) và hướng dẫn user cách đẩy code/mở MR tự động.
+3. **Commit & Chuẩn bị MR (Merge Request):** Khi code đã pass mọi bài test:
+   - Thực hiện tạo nhánh mới và commit code theo chuẩn Conventional Commits (ví dụ: `feat(#ticket-id): add job pipeline`).
+   - Đẩy code lên GitHub (`git push -u origin <branch-name>`).
+   - **BẮT BUỘC:** Cung cấp cho user **đường link tạo Pull Request** (xuất hiện trong log Terminal khi push).
+   - **BẮT BUỘC:** Sinh ra phần **Nội dung (Description) của Pull Request** và bọc trong một khối code Markdown (` ```markdown `) ngay tại giao diện chat. Nội dung này phải có cấu trúc chuyên nghiệp (Tóm tắt, Các thay đổi chính, Checklist) để user chỉ việc ấn Copy và dán thẳng vào ô "Add a description" trên GitHub.
 4. Chờ user "Confirm" để hoàn tất Ticket.
 
 ---
