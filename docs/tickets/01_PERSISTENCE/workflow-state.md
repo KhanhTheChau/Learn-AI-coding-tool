@@ -21,7 +21,8 @@
 | **3.2** | Viết Pytest & Mocking (AsyncMock) External APIs | ✅ done | `tests/test_...py` | 2026-09-17 |
 | **4.1** | Kiểm tra & Cập nhật `requirements.txt` | ✅ done | `requirements.txt` | 2026-09-17 |
 | **4.2** | Viết lệnh cURL mẫu & Hướng dẫn khởi chạy | ✅ done | `README.md` (root) | 2026-09-17 |
-| **4.3** | Git Commit & Tạo Merge Request (MR) | ✅ done | Repo GitHub | 2026-09-17 |
+| **4.3** | Viết tài liệu Hướng dẫn Test tay (Manual Test) | ✅ done | `docs/tickets/01_PERSISTENCE/manual_test.md` | 2026-09-17 |
+| **4.4** | Git Commit & Tạo Merge Request (MR) | ✅ done | Repo GitHub | 2026-09-17 |
 
 **Quy ước trạng thái:** `⬜ pending` -> `⏳ in_progress` -> `✅ done`
 Chỉ đánh `✅ done` khi **đã lưu file output** VÀ **user đã confirm** hạng mục đó.

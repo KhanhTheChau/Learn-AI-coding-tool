@@ -17,3 +17,11 @@ class Job(BaseModel):
     artifact_path: Optional[str] = None
     error_message: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class JobCreateRequest(BaseModel):
+    query: str = Field(
+        ...,
+        min_length=5,
+        max_length=1000,
+        description="Nội dung yêu cầu tạo video hóa học"
+    )
