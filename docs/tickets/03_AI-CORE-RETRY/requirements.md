@@ -8,7 +8,7 @@
 ## 2. Acceptance Criteria (AC)
 - [ ] AC 1: Tạo class `AIVideoGenerator`.
 - [ ] AC 2: Thiết kế class với cơ chế xử lý lỗi (guardrails): thêm logic retry (thử lại tối đa 3 lần nếu có lỗi trong quá trình sinh nội dung).
-- [ ] AC 3: Viết hàm `validate_output()` để kiểm tra nội dung tạo ra có hợp lệ hay không. Nếu không, ném exception để kích hoạt tiến trình retry.
+- [ ] AC 3: Viết hàm `validate_chemistry_keywords(output)` để kiểm tra nội dung trả về từ AI có chứa từ khóa chuyên ngành không. Nếu không hợp lệ (ví dụ AI bị ảo giác), ném exception để kích hoạt tiến trình retry.
 - [ ] AC 4: Trả về trạng thái `FAILED` rõ ràng nếu hết số lần retry thay vì fail silently.
 
 ## 3. Scope & Out of Scope
