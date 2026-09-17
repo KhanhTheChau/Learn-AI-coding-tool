@@ -10,6 +10,8 @@ Khi xử lý một chức năng, Agent rất dễ bị "ảo giác" (hallucinate
 1. **Khởi tạo trạng thái:** Ngay khi nhận yêu cầu, copy `docs/templates/workflow-state.md` thành `docs/tickets/[ticket-number]_[TICKET-ID]/workflow-state.md`.
 2. **Cập nhật liên tục:** Đánh dấu `✅ done` vào file này ngay sau mỗi bước hoàn thành.
 3. **Đọc trước khi làm:** Nếu session bị ngắt quãng, Agent phải tự giác đọc lại file trạng thái này trước khi tiếp tục code, không tự ý đoán tiến độ.
+4. **Quy tắc Dừng (STRICT STOP):** Tại cuối mỗi bước lớn (Bước 1, 2, 3, 4), Agent **TUYỆT ĐỐI KHÔNG ĐƯỢC** tự động làm tiếp. Agent **phải dừng lại**, trình bày kết quả và **chỉ được phép thực hiện bước tiếp theo khi User gõ chính xác chữ "Confirm"** (hoặc đồng ý rõ ràng). Dù User có nói "thực thi đi" nhưng chưa nghiệm thu bước hiện tại, Agent cũng phải hỏi lại để đảm bảo User đã review file output.
+5. **Ghi nhận Lỗi & Cập nhật Memory (RCA):** Nếu có bất kỳ lỗi chung nào xảy ra trong quá trình thực thi (ví dụ: lỗi cấu hình, sai sót quy trình, anti-pattern) mà có khả năng lặp lại ở các ticket sau, Agent **PHẢI** lưu chi tiết lỗi và kết quả phân tích nguyên nhân (RCA) vào thư mục `.memory/` (tạo file markdown lưu kinh nghiệm) để hệ thống tự động học hỏi cho các phiên sau. Không tự ý đoán mò sửa lỗi khi chưa được Confirm.
 
 ---
 
@@ -59,7 +61,8 @@ Khi xử lý một chức năng, Agent rất dễ bị "ảo giác" (hallucinate
    - Lệnh cURL mẫu để Submit Video Job.
    - Lệnh cURL mẫu để Check Status Job.
 3. **Commit & Chuẩn bị MR (Merge Request):** Khi code đã pass mọi bài test:
-   - Thực hiện tạo nhánh mới và commit code theo chuẩn Conventional Commits (ví dụ: `feat(#ticket-id): add job pipeline`).
+   - **BẮT BUỘC:** Phải cập nhật file `workflow-state.md` thành `✅ done` cho tất cả các mục của Bước 4 (bao gồm cả mục 4.3 Git Commit) **TRƯỚC KHI** chạy lệnh commit.
+   - Thực hiện add và commit code theo chuẩn Conventional Commits (ví dụ: `feat(#ticket-id): add job pipeline`).
    - Đẩy code lên GitHub (`git push -u origin <branch-name>`).
    - **BẮT BUỘC:** Cung cấp cho user **đường link tạo Pull Request** (xuất hiện trong log Terminal khi push).
    - **BẮT BUỘC:** Sinh ra phần **Nội dung (Description) của Pull Request** và bọc trong một khối code Markdown (` ```markdown `) ngay tại giao diện chat. Nội dung này phải có cấu trúc chuyên nghiệp (Tóm tắt, Các thay đổi chính, Checklist) để user chỉ việc ấn Copy và dán thẳng vào ô "Add a description" trên GitHub.

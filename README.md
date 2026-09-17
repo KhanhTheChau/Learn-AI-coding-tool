@@ -16,4 +16,29 @@ Dự án này được thiết kế để các hệ thống AI khác có thể d
 - **Quy tắc Coding:** Xem `ai-chemistry-backend-rules.md`.
 
 ## Hướng dẫn chạy thử (Local)
-*(Sẽ được tự động cập nhật bởi Senior DevOps Agent sau khi hoàn thành code ở Bước 4).*
+### 1. Setup môi trường
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Khởi chạy server
+```bash
+uvicorn src.main:app --reload
+```
+Server sẽ chạy tại `http://localhost:8000`. Kiểm tra API Health Check:
+```bash
+curl http://localhost:8000/health
+```
+
+### 3. API Tham khảo (Sẽ triển khai ở Ticket 02)
+Lệnh cURL mẫu để Submit Video Job:
+```bash
+curl -X POST http://localhost:8000/api/v1/jobs \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Giải thích phản ứng Oxi hóa khử"}'
+```
+
+Lệnh cURL mẫu để Check Status Job:
+```bash
+curl -X GET http://localhost:8000/api/v1/jobs/{job_id}
+```
