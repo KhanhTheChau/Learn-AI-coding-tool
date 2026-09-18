@@ -27,11 +27,12 @@ async def process_video_job(job_id: str, repo: JobRepository, ai_gen: AIVideoGen
         video_script = await ai_gen.generate_with_retry(job.query)
         
         # Tạo artifact path
+        output_path = f"output/static/videos/{job_id}.mp4"
         relative_path = f"static/videos/{job_id}.mp4"
-        absolute_path = os.path.join(os.getcwd(), relative_path)
+        absolute_path = os.path.join(os.getcwd(), output_path)
         
         # Ghép video bằng VideoAssembler
-        await assembler.assemble_video(video_script, absolute_path)
+        await assembler.assemble_video(job.query, video_script, absolute_path)
         
         # Cập nhật status thành COMPLETED kèm artifact path
         job.status = JobStatus.COMPLETED
