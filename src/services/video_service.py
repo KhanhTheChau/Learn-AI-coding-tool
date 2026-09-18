@@ -3,11 +3,11 @@ import logging
 from src.models.job import JobStatus
 from src.repositories.job_repository import JobRepository
 from src.ai.video_generator import AIVideoGenerator
-from src.pipeline.video_assembler import VideoAssembler
+from src.pipeline.third_party_provider import ThirdPartyVideoProvider
 
 logger = logging.getLogger(__name__)
 
-async def process_video_job(job_id: str, repo: JobRepository, ai_gen: AIVideoGenerator, assembler: VideoAssembler):
+async def process_video_job(job_id: str, repo: JobRepository, ai_gen: AIVideoGenerator, provider: ThirdPartyVideoProvider):
     """
     Background task to process a video generation job.
     """
@@ -31,8 +31,8 @@ async def process_video_job(job_id: str, repo: JobRepository, ai_gen: AIVideoGen
         relative_path = f"static/videos/{job_id}.mp4"
         absolute_path = os.path.join(os.getcwd(), output_path)
         
-        # Ghép video bằng VideoAssembler
-        await assembler.assemble_video(job.query, video_script, absolute_path)
+        # Ghép video bằng ThirdPartyVideoProvider (hoặc fall back về VideoAssembler ở Mock Mode)
+        await provider.render_video(job.query, video_script, absolute_path)
         
         # Cập nhật status thành COMPLETED kèm artifact path
         job.status = JobStatus.COMPLETED

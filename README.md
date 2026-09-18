@@ -30,13 +30,18 @@ Server mặc định chạy tại: `http://localhost:8000`
 ## 3. Hướng dẫn Sử dụng API (Usage)
 
 ### 3.1. Submit Job Tạo Video
-Hãy sử dụng cURL để submit một query cho AI. Hệ thống đang hỗ trợ 3 chủ đề chuyên sâu: `Thang đo pH`, `Liên kết cộng hóa trị`, `Liên kết ion`.
+Hãy sử dụng cURL để submit một query. Hệ thống đang hỗ trợ 3 chủ đề tiếng Anh chuẩn: `How does the pH scale work?`, `Why do atoms form covalent bonds?`, `What is the difference between ionic and covalent bonding?`.
 
 ```cmd
-curl -X POST http://localhost:8000/api/v1/jobs -H "Content-Type: application/json" -d "{\"query\": \"Thang đo pH\"}"
+curl -X POST http://localhost:8000/api/v1/jobs -H "Content-Type: application/json" -d "{\"query\": \"How does the pH scale work?\"}"
 ```
 
-### 3.2. Kiểm tra trạng thái Job
+### 3.2. Liệt kê danh sách Job
+```cmd
+curl -X GET http://localhost:8000/api/v1/jobs
+```
+
+### 3.3. Kiểm tra trạng thái Job
 Sử dụng ID trả về từ bước 3.1:
 ```cmd
 curl -X GET http://localhost:8000/api/v1/jobs/<job_id>
@@ -57,6 +62,6 @@ Hệ thống quản lý Job qua 3 trạng thái chính (State Machine):
 - `COMPLETED`: Xử lý thành công. Pipeline ghép nối Video đã hoàn tất.
 - `FAILED`: Xử lý thất bại sau khi hết số lần thử hoặc có ngoại lệ hệ thống.
 
-**Ranh giới Lưu trữ (Storage Boundaries):**
-- **In-Memory Repository:** Metadata của Job (ID, trạng thái, query) được lưu tạm trong bộ nhớ (RAM). Dữ liệu này sẽ mất khi restart server.
-- **File System (Disk):** Các Video (`.mp4`) sinh ra được lưu trực tiếp trên ổ cứng tại thư mục `/static/videos/`. Nếu server thiếu `ffmpeg`, luồng xử lý I/O vẫn được đảm bảo nhờ cơ chế sinh file dự phòng (Dummy hex signature).
+**Kiến trúc API của bên thứ 3 (Third-Party Provider) & Mock Mode:**
+- Dự án sử dụng `ThirdPartyVideoProvider` làm module cắm thả (plug-and-play). Nếu bạn cấu hình biến môi trường `VIDEO_API_KEY`, nó sẽ giả lập cơ chế gọi API ngoài (polling status liên tục, xử lý lỗi mạng bằng `try/except` và Retry).
+- **Out-of-the-Box (Mock Mode)**: Nếu không có API key, hệ thống sẽ rơi vào `Mock Mode`. Code sẽ dùng tổ hợp `Pillow` (vẽ frame slide khóa học), `gTTS` (đọc kịch bản tiếng Anh) và `FFmpeg` (`-shortest` muxing) để xuất ra file `.mp4` hoàn chỉnh ngay trên máy bạn. Tất cả quá trình tạo video này đều hoàn toàn bất đồng bộ (non-blocking) và được bảo vệ vòng lặp `stderr` (chống Deadlock).

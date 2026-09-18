@@ -1,44 +1,44 @@
 import asyncio
-from src.pipeline.video_assembler import VideoAssembler
 import os
 import time
+from src.pipeline.third_party_provider import ThirdPartyVideoProvider
+from src.ai.video_generator import AIVideoGenerator
 
 async def generate_mock_videos():
-    assembler = VideoAssembler()
+    os.makedirs("output/exported_videos", exist_ok=True)
+    
+    ai_gen = AIVideoGenerator()
+    provider = ThirdPartyVideoProvider()
     
     test_cases = [
         {
-            "filename": "demo_test1_short.mp4",
-            "query": "What is pH?",
-            "script": "pH is a measure of acidity."
+            "query": "How does the pH scale work?",
+            "filename": "demo_test1_ph.mp4"
         },
         {
-            "filename": "demo_test2_medium.mp4",
-            "query": "How does ionic bond work?",
-            "script": "Ionic bonding is the complete transfer of valence electron(s) between atoms. It is a type of chemical bond that generates two oppositely charged ions."
+            "query": "Why do atoms form covalent bonds?",
+            "filename": "demo_test2_covalent.mp4"
         },
         {
-            "filename": "demo_test3_long.mp4",
-            "query": "Explain covalent bonding in detail",
-            "script": "A covalent bond is a chemical bond that involves the sharing of electron pairs between atoms. These electron pairs are known as shared pairs or bonding pairs. The stable balance of attractive and repulsive forces between atoms, when they share electrons, is known as covalent bonding. For many molecules, the sharing of electrons allows each atom to attain the equivalent of a full valence shell, corresponding to a stable electronic configuration."
-        },
-        {
-            "filename": "demo_test4_unicode.mp4",
-            "query": "Thang đo pH là gì?",
-            "script": "Thang đo pH là thước đo mức độ axit hoặc bazơ của một dung dịch. Nó thường chạy từ 0 đến 14, trong đó 7 là trung tính. Nước tinh khiết có pH bằng 7. Các chất có pH dưới 7 có tính axit, và các chất có pH trên 7 có tính kiềm."
+            "query": "What is the difference between ionic and covalent bonding?",
+            "filename": "demo_test3_difference.mp4"
         }
     ]
     
-    os.makedirs("output/exported_videos", exist_ok=True)
-    
     for case in test_cases:
         path = os.path.join("output/exported_videos", case["filename"])
-        # Encode safely for Windows console
         safe_query = case['query'].encode('ascii', 'ignore').decode('ascii')
         print(f"Generating for {safe_query} at {path}...")
         start_t = time.time()
-        await assembler.assemble_video(case["query"], case["script"], path)
+        
+        # Generate script using AI with retry logic
+        script = await ai_gen.generate_with_retry(case["query"])
+        
+        # Render using the provider (will use mock mode if no API key)
+        await provider.render_video(case["query"], script, path)
+        
         print(f"Successfully created {path} in {time.time() - start_t:.2f}s")
+        print("-" * 50)
 
 if __name__ == "__main__":
     asyncio.run(generate_mock_videos())

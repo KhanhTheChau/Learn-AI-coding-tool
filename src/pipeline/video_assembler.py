@@ -178,14 +178,9 @@ class VideoAssembler:
         return len(text) * 20
 
     def _render_frame(self, scene: Scene, time_in_scene: float) -> np.ndarray:
-        # Base copy từ Static Gradient
+        # Base background
         frame = self.static_bg.copy().convert('RGBA')
-        
-        # Draw Header
         draw = ImageDraw.Draw(frame)
-        header_text = "AI ASSISTANT"
-        draw.text((120, 80), header_text, font=self.font_title, fill=self.accent_color)
-        draw.line([(120, 140), (450, 140)], fill=self.accent_color, width=4)
         
         # Calculate Animation (Fade)
         # 0->1s: fade in
@@ -196,49 +191,33 @@ class VideoAssembler:
         elif time_in_scene > scene.duration - 0.5:
             alpha = int(255 * max(0, (scene.duration - time_in_scene) / 0.5))
             
-        # Draw Question Card
-        q_lines = self._wrap_text(scene.query, self.font_query, 1400)
-        q_h = max(180, len(q_lines) * 80 + 80)
+        # Draw Title (Query) centered at the top
+        q_lines = self._wrap_text(scene.query, self.font_query, 1600)
         
-        if scene.is_intro:
-            # Intro: Card bự ở giữa
-            card_y = (self.height - q_h) // 2
-            card_x = (self.width - 1500) // 2
+        y_t = 120
+        for line in q_lines:
+            # Center text
+            w = self._get_text_w(line, self.font_query)
+            x_t = (self.width - w) // 2
+            draw.text((x_t, y_t), line, font=self.font_query, fill=self.accent_color)
+            y_t += 80
             
-            # Animation scale nhẹ bằng Y-offset
-            y_offset = int((1.0 - (alpha/255.0)) * 50)
-            self._draw_rounded_shadow_card(draw, frame, card_x, card_y + y_offset, 1500, q_h, 24)
-            
-            draw_alpha = Image.new('RGBA', frame.size, (0,0,0,0))
-            d_alpha = ImageDraw.Draw(draw_alpha)
-            y_t = card_y + y_offset + 50
-            for line in q_lines:
-                d_alpha.text((card_x + 60, y_t), line, font=self.font_query, fill=self.text_color_dark + (alpha,))
-                y_t += 80
-            frame.alpha_composite(draw_alpha)
-            
-        else:
-            # Scene tiếp theo: Card nhỏ gọn phía trên
-            card_y = 200
-            card_x = 120
-            self._draw_rounded_shadow_card(draw, frame, card_x, card_y, 1680, q_h, 24)
-            
-            # Question text solid
-            y_t = card_y + 40
-            for line in q_lines:
-                draw.text((card_x + 60, y_t), line, font=self.font_query, fill=self.text_color_dark)
-                y_t += 80
-                
-            # Answer text (Animated)
+        draw.line([(300, y_t + 20), (1620, y_t + 20)], fill=self.accent_color, width=2)
+        
+        # Draw Script Text (Educational Slide style)
+        if not scene.is_intro:
             draw_ans = Image.new('RGBA', frame.size, (0,0,0,0))
             d_ans = ImageDraw.Draw(draw_ans)
-            y_a = scene.y_start
             
-            # Slide up effect cho answer
+            y_a = max(y_t + 100, 350)
+            
+            # Slide up effect and fade
             y_offset = int((1.0 - (alpha/255.0)) * 30)
             
             for line in scene.lines:
-                d_ans.text((120, y_a + y_offset), line, font=self.font_answer, fill=self.text_color_light + (alpha,))
+                w = self._get_text_w(line, self.font_answer)
+                # Left align with generous padding
+                d_ans.text((150, y_a + y_offset), line, font=self.font_answer, fill=self.text_color_light + (alpha,))
                 y_a += 80
                 
             frame.alpha_composite(draw_ans)
