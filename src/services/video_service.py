@@ -1,12 +1,13 @@
-import asyncio
+import os
 import logging
 from src.models.job import JobStatus
 from src.repositories.job_repository import JobRepository
 from src.ai.video_generator import AIVideoGenerator
+from src.pipeline.video_assembler import VideoAssembler
 
 logger = logging.getLogger(__name__)
 
-async def process_video_job(job_id: str, repo: JobRepository, ai_gen: AIVideoGenerator):
+async def process_video_job(job_id: str, repo: JobRepository, ai_gen: AIVideoGenerator, assembler: VideoAssembler):
     """
     Background task to process a video generation job.
     """
@@ -24,9 +25,16 @@ async def process_video_job(job_id: str, repo: JobRepository, ai_gen: AIVideoGen
         # Sử dụng AIVideoGenerator (có sẵn cơ chế Retry và Validate)
         video_script = await ai_gen.generate_with_retry(job.query)
         
-        # Cập nhật status thành COMPLETED kèm artifact path giả lập
+        # Tạo artifact path
+        relative_path = f"static/videos/{job_id}.mp4"
+        absolute_path = os.path.join(os.getcwd(), relative_path)
+        
+        # Ghép video bằng VideoAssembler
+        await assembler.assemble_video(video_script, absolute_path)
+        
+        # Cập nhật status thành COMPLETED kèm artifact path
         job.status = JobStatus.COMPLETED
-        job.artifact_path = f"https://dummy-bucket/videos/{job_id}.mp4"
+        job.artifact_path = f"/{relative_path}"
         repo.update(job)
         
     except Exception as e:

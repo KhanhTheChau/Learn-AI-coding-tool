@@ -3,8 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, status
 from src.models.job import Job, JobCreateRequest, JobStatus
 from src.repositories.job_repository import JobRepository
 from src.services.video_service import process_video_job
-from src.dependencies import get_job_repository, get_ai_video_generator
+from src.dependencies import get_job_repository, get_ai_video_generator, get_video_assembler
 from src.ai.video_generator import AIVideoGenerator
+from src.pipeline.video_assembler import VideoAssembler
 
 router = APIRouter(prefix="/api/v1")
 
@@ -13,13 +14,14 @@ async def submit_job(
     request: JobCreateRequest,
     background_tasks: BackgroundTasks,
     repo: JobRepository = Depends(get_job_repository),
-    ai_gen: AIVideoGenerator = Depends(get_ai_video_generator)
+    ai_gen: AIVideoGenerator = Depends(get_ai_video_generator),
+    assembler: VideoAssembler = Depends(get_video_assembler)
 ):
     """Submit a new video generation job."""
     job = Job(query=request.query)
     repo.create(job)
     
-    background_tasks.add_task(process_video_job, job.id, repo, ai_gen)
+    background_tasks.add_task(process_video_job, job.id, repo, ai_gen, assembler)
     return job
 
 @router.get("/jobs", response_model=List[Job])
