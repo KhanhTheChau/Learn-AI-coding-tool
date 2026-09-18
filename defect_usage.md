@@ -8,10 +8,11 @@
 
 | Nguyên tắc | Chi tiết |
 | :--- | :--- |
+| **Đọc Memory (BẮT BUỘC)** | Tránh lặp lại lỗi cũ: Bắt buộc đọc `.memory/tickets_requirements_snapshot.md` và `.memory/workflow_rules.md` trước khi code. |
 | **Thuộc về ticket cha** | Mọi defect **phải liên kết** với task/feature ban đầu |
 | **Không redesign** | Defect chỉ sửa đúng lỗi code Python / Pydantic — không refactor kiến trúc |
 | **RCA bắt buộc** | Phải tìm ra root cause bằng cách đọc code thực tế, không đoán mò |
-| **Docs trước, code sau** | Ghi tài liệu RCA ra file → chờ confirm → mới code |
+| **Docs trước, code sau** | Ghi tài liệu RCA ra file -> chờ confirm -> mới code |
 
 ---
 
