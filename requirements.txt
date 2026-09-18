@@ -7,3 +7,4 @@ pytest-asyncio
 pytest
 httpx
 ffmpeg-python>=0.21.0
+gtts>=2.3.0

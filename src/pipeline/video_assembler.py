@@ -6,6 +6,7 @@ import asyncio
 import subprocess
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from gtts import gTTS
 
 logger = logging.getLogger(__name__)
 
@@ -254,12 +255,28 @@ class VideoAssembler:
         if not frame_np.any():
             raise ValueError("Corrupted frame: Completely black")
 
+    async def _generate_audio(self, script: str, audio_path: str) -> bool:
+        """Sinh audio TTS với cơ chế Network Fallback"""
+        logger.info(f"Generating TTS audio for script (len: {len(script)})")
+        try:
+            tts = gTTS(text=script, lang='en')
+            await asyncio.to_thread(tts.save, audio_path)
+            return True
+        except Exception as e:
+            logger.error(f"TTS Generation failed due to network or API error: {e}")
+            # Fallback: Create a silent audio file or simply return False so we can encode without audio if needed.
+            # Here we just return False and the muxing logic will handle it.
+            return False
+
     async def assemble_video(self, query: str, script: str, output_path: str) -> str:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         logger.info(f"Assembling video for: {query}")
         
         start_time = time.time()
         scenes = self._parse_scenes(query, script)
+        
+        audio_path = output_path.replace(".mp4", ".mp3")
+        has_audio = await self._generate_audio(script, audio_path)
         
         cmd = [
             'ffmpeg', '-y',
@@ -269,12 +286,26 @@ class VideoAssembler:
             '-pix_fmt', 'rgb24',
             '-r', str(self.fps),
             '-i', '-',
+        ]
+        
+        if has_audio:
+            cmd.extend(['-i', audio_path])
+            
+        cmd.extend([
             '-c:v', 'libx264',
             '-pix_fmt', 'yuv420p',
             '-preset', 'fast',
             '-crf', '23',
-            output_path
-        ]
+        ])
+        
+        if has_audio:
+            cmd.extend([
+                '-c:a', 'aac',
+                '-b:a', '192k',
+                '-shortest'
+            ])
+            
+        cmd.append(output_path)
         
         try:
             stderr_file = open(f"{output_path}.log", "w")
@@ -289,10 +320,21 @@ class VideoAssembler:
                     frame = self._render_frame(scene, time_in_scene)
                     self._validate_frame(frame)
                     
-                    process.stdin.write(frame.tobytes())
-                    total_rendered += 1
+                    try:
+                        process.stdin.write(frame.tobytes())
+                        total_rendered += 1
+                    except (BrokenPipeError, OSError) as e:
+                        # FFmpeg closed the pipe early due to -shortest
+                        break
+                
+                if process.poll() is not None:
+                    # process already exited
+                    break
                     
-            process.stdin.close()
+            try:
+                process.stdin.close()
+            except Exception:
+                pass
             process.wait()
             stderr_file.close()
             
@@ -307,5 +349,11 @@ class VideoAssembler:
         except Exception as e:
             logger.error(f"Failed to generate video: {e}")
             raise
+        finally:
+            if os.path.exists(audio_path):
+                try:
+                    os.remove(audio_path)
+                except:
+                    pass
             
         return output_path
