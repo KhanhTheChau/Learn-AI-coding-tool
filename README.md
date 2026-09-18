@@ -36,6 +36,8 @@ Hãy sử dụng cURL để submit một query. Hệ thống đang hỗ trợ 3 
 curl -X POST http://localhost:8000/api/v1/jobs -H "Content-Type: application/json" -d "{\"query\": \"How does the pH scale work?\"}"
 ```
 
+*(Lưu ý: Bạn có thể xem log Terminal ở phía Backend để tận mắt chứng kiến hệ thống bắt lỗi Hallucination và tự động Retry)*
+
 ### 3.2. Liệt kê danh sách Job
 ```cmd
 curl -X GET http://localhost:8000/api/v1/jobs
@@ -47,13 +49,23 @@ Sử dụng ID trả về từ bước 3.1:
 curl -X GET http://localhost:8000/api/v1/jobs/<job_id>
 ```
 
-### 3.3. Xem Video
+### 3.4. Xem Video
 Khi Job có status `COMPLETED`, bạn có thể lấy thuộc tính `artifact_path` và truy cập trực tiếp bằng trình duyệt để tải về:
 ```text
 http://localhost:8000/static/videos/<job_id>.mp4
 ```
 
-## 4. Architecture Note (Thiết kế hệ thống)
+## 4. Hướng dẫn Test (Quality Assurance & Resilience)
+Để hội đồng đánh giá có thể kiểm chứng năng lực xử lý bất định (Non-determinism) của hệ thống:
+1. Mở Terminal chạy server: `uvicorn src.main:app`
+2. Mở Terminal thứ 2, chạy script mock test tự động (Script này gọi đủ 3 câu hỏi tiếng Anh bắt buộc):
+```bash
+python scripts/generate_mock_videos.py
+```
+3. **Quan sát Log:** Bạn sẽ thấy thuật toán cố tình tiêm lỗi 20% Hallucination (sinh nội dung rác), hệ thống sẽ ném Exception `Hallucination detected` và tự động Retry vòng lặp cho đến khi ra kết quả sạch.
+4. **Kiểm tra File:** 3 Video bài giảng hoàn chỉnh sẽ được tạo ra tại thư mục `output/exported_videos/`.
+
+## 5. Architecture Note (Thiết kế hệ thống)
 
 **Vòng đời Job (Job Lifecycle):**
 Hệ thống quản lý Job qua 3 trạng thái chính (State Machine):

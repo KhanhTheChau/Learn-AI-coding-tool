@@ -189,13 +189,13 @@ class VideoAssembler:
         elif "covalent" in q:
             img_path = "src/assets/images/covalent.jpg"
         else:
-            return self.static_bg.copy()
+            return self.static_bg.copy().convert('RGBA')
             
         if img_path in self.bg_cache:
             return self.bg_cache[img_path].copy()
             
         if not os.path.exists(img_path):
-            return self.static_bg.copy()
+            return self.static_bg.copy().convert('RGBA')
             
         try:
             bg = Image.open(img_path).convert('RGBA')
@@ -208,7 +208,7 @@ class VideoAssembler:
             self.bg_cache[img_path] = bg
             return bg.copy()
         except Exception:
-            return self.static_bg.copy()
+            return self.static_bg.copy().convert('RGBA')
 
     def _render_frame(self, scene: Scene, time_in_scene: float) -> np.ndarray:
         # Base background mapped to query
