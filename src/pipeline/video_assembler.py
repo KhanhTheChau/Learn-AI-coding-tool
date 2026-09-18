@@ -14,20 +14,17 @@ class VideoAssembler:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
         try:
-            # Trong một hệ thống thực, sẽ có audio và image sinh ra từ AI.
-            # Ở prototype, ta giả lập việc ghép nối bằng cách chỉ chạy lệnh đơn giản (nếu có file).
-            # Do không chắc user có thư mục assets/ chứa mock_image.jpg hay không,
-            # ta sẽ thử lấy phiên bản ffmpeg để check xem hệ thống có ffmpeg không.
-            ffmpeg.probe("dummy") # Lệnh này sẽ lỗi FileNotFoundError nếu ffmpeg chưa được cài
+            # Để có video thực tế xem được, ta sẽ dùng bộ lọc lavfi của ffmpeg
+            # để tạo một đoạn video màu đen (hoặc test pattern) dài 3 giây.
+            # Ta cũng có thể chèn nội dung script thành text trên màn hình, nhưng để đơn giản,
+            # ta sẽ tạo video testsrc.
             
-            # (Logic lý thuyết ghép file nếu có)
-            # stream = ffmpeg.input('assets/mock_image.jpg', loop=1, t=5)
-            # audio = ffmpeg.input('assets/mock_audio.mp3')
-            # stream = ffmpeg.output(stream, audio, output_path, vcodec='libx264', acodec='aac')
-            # ffmpeg.run(stream)
+            stream = ffmpeg.input('testsrc=duration=3:size=1280x720:rate=30', f='lavfi')
+            # Lưu ý: Nếu user muốn có tiếng, có thể thêm anoisesrc
+            audio = ffmpeg.input('anoisesrc=duration=3:color=brown', f='lavfi')
             
-            # Vì không có file thực, ta dùng fallback cho an toàn:
-            raise FileNotFoundError("Mocking ffmpeg failure to test fallback")
+            stream = ffmpeg.output(stream, audio, output_path, vcodec='libx264', acodec='aac', pix_fmt='yuv420p', shortest=None)
+            ffmpeg.run(stream, quiet=True, overwrite_output=True)
             
         except (FileNotFoundError, Exception) as e:
             logger.warning(f"Video pipeline fallback activated (ffmpeg not found or error: {e})")
