@@ -13,6 +13,8 @@ __pycache__/
 .vscode/
 .idea/
 
-# File tạm, logs
+# File tạm, logs, và output artifacts
 *.log
 scratch/
+*.mp4
+exported_videos/
