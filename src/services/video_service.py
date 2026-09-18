@@ -21,6 +21,7 @@ async def process_video_job(job_id: str, repo: JobRepository, ai_gen: AIVideoGen
         # Cập nhật status thành PROCESSING
         job.status = JobStatus.PROCESSING
         repo.update(job)
+        logger.info(f"Job {job_id} transitioned to PROCESSING")
         
         # Sử dụng AIVideoGenerator (có sẵn cơ chế Retry và Validate)
         video_script = await ai_gen.generate_with_retry(job.query)
@@ -36,6 +37,7 @@ async def process_video_job(job_id: str, repo: JobRepository, ai_gen: AIVideoGen
         job.status = JobStatus.COMPLETED
         job.artifact_path = f"/{relative_path}"
         repo.update(job)
+        logger.info(f"Job {job_id} transitioned to COMPLETED. Artifact: {job.artifact_path}")
         
     except Exception as e:
         logger.error(f"Job {job_id} failed: {str(e)}")
