@@ -41,3 +41,23 @@ async def test_generate_with_retry_succeeds_on_second_attempt():
     assert "oxi hóa khử" in result
     # Gọi chính xác 2 lần
     assert ai_gen._mock_ai_call.call_count == 2
+
+@pytest.mark.asyncio
+async def test_mock_ai_call_specific_queries():
+    ai_gen = AIVideoGenerator()
+    
+    # Test 1: Thang đo pH
+    res1 = await ai_gen._mock_ai_call("Hỏi về Thang đo pH")
+    assert "Thang đo pH là thước đo mức độ axit" in res1
+    
+    # Test 2: Cộng hóa trị
+    res2 = await ai_gen._mock_ai_call("Liên kết cộng hóa trị")
+    assert "dùng chung các electron" in res2
+    
+    # Test 3: Ion
+    res3 = await ai_gen._mock_ai_call("Liên kết ion và cộng hóa trị khác nhau thế nào")
+    assert "lực hút tĩnh điện" in res3
+    
+    # Test 4: Chung
+    res4 = await ai_gen._mock_ai_call("Chủ đề khác")
+    assert "oxi hóa khử" in res4

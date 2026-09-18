@@ -24,9 +24,17 @@ class AIVideoGenerator:
     async def _mock_ai_call(self, query: str) -> str:
         """
         Mô phỏng gọi API AI tốn thời gian.
-        Trong thực tế, bạn có thể gọi OpenAI API tại đây.
+        Trả về kịch bản cứng cho 3 câu hỏi đặc thù, hoặc kịch bản chung.
         """
         await asyncio.sleep(2)
+        q = query.lower()
+        if "thang đo ph" in q:
+            return f"Kịch bản: Thang đo pH là thước đo mức độ axit hoặc bazơ của một dung dịch. Nó phản ứng với các chất chỉ thị màu."
+        elif "cộng hóa trị" in q and "ion" not in q:
+            return f"Kịch bản: Liên kết cộng hóa trị hình thành do sự dùng chung các electron giữa các nguyên tử."
+        elif "ion" in q and "cộng hóa trị" in q:
+            return f"Kịch bản: Liên kết ion hình thành do lực hút tĩnh điện, trong khi cộng hóa trị dùng chung electron. Cả hai đều là phản ứng hóa học."
+        
         return f"Kịch bản mô phỏng về {query} với các phản ứng oxi hóa khử."
 
     async def generate_with_retry(self, query: str, max_retries: int = 3) -> str:
