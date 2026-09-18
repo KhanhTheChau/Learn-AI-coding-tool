@@ -33,7 +33,9 @@ async def generate_mock_videos():
     
     for case in test_cases:
         path = os.path.join("output/exported_videos", case["filename"])
-        print(f"Generating for {case['query']} at {path}...")
+        # Encode safely for Windows console
+        safe_query = case['query'].encode('ascii', 'ignore').decode('ascii')
+        print(f"Generating for {safe_query} at {path}...")
         start_t = time.time()
         await assembler.assemble_video(case["query"], case["script"], path)
         print(f"Successfully created {path} in {time.time() - start_t:.2f}s")
