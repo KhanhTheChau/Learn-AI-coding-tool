@@ -57,13 +57,19 @@ async def test_process_video_job_success(mock_sleep):
     repo.create(job)
     
     # Execute the service directly
-    await process_video_job(job.id, repo)
+    from src.ai.video_generator import AIVideoGenerator
+    from src.pipeline.video_assembler import VideoAssembler
+    ai_gen = AsyncMock(spec=AIVideoGenerator)
+    ai_gen.generate_with_retry.return_value = "Mock script"
+    assembler = AsyncMock(spec=VideoAssembler)
+    assembler.assemble_video.return_value = f"exported_videos/{job.id}.mp4"
+    
+    await process_video_job(job.id, repo, ai_gen, assembler)
     
     # Verify
-    mock_sleep.assert_called_once_with(5)
     updated_job = repo.get(job.id)
     assert updated_job.status == JobStatus.COMPLETED
-    assert updated_job.artifact_path == f"https://dummy-bucket/videos/{job.id}.mp4"
+    assert updated_job.artifact_path == f"/static/videos/{job.id}.mp4"
 
 @pytest.mark.asyncio
 @patch("asyncio.sleep", new_callable=AsyncMock)
@@ -75,10 +81,14 @@ async def test_process_video_job_failure(mock_sleep):
     repo.create(job)
     
     # Simulate a timeout or error inside AI service
-    mock_sleep.side_effect = Exception("Simulated AI Error")
+    from src.ai.video_generator import AIVideoGenerator
+    from src.pipeline.video_assembler import VideoAssembler
+    ai_gen = AsyncMock(spec=AIVideoGenerator)
+    ai_gen.generate_with_retry.side_effect = Exception("Simulated AI Error")
+    assembler = AsyncMock(spec=VideoAssembler)
     
     # Execute (should catch exception and update state)
-    await process_video_job(job.id, repo)
+    await process_video_job(job.id, repo, ai_gen, assembler)
     
     # Verify State Machine resilience
     updated_job = repo.get(job.id)

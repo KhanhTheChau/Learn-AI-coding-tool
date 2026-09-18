@@ -4,8 +4,12 @@ Tài liệu này định nghĩa kiến trúc cốt lõi, quy trình phát triể
 
 ## 1. Foundational Rules
 - Core framework: **FastAPI** + Pydantic v2.
-- Architecture: Layered (Router -> Service -> Repository).
+- Architecture: Layered (Router -> Service -> Repository -> Assembler).
 - Logic tạo video bắt buộc phải bất đồng bộ (Background Tasks).
+- **MANDATORY KNOWLEDGE:** Agent BẮT BUỘC phải đọc 2 file sau trước khi bắt đầu bất kỳ tác vụ nào liên quan đến code:
+  - `ai-chemistry-backend-rules.md` (Luật thiết kế hệ thống).
+  - `.memory/tickets_requirements_snapshot.md` (Chứa snapshot thiết kế chuẩn mực của toàn bộ Ticket đã hoàn thành).
+  - `.memory/workflow_rules.md` (Chứa các Anti-Patterns chết người tuyệt đối phải tránh).
 
 ## 2. Mandatory: Root Cause Analysis (Defect Workflow)
 - Khi thực hiện sửa lỗi (Bug/Defect), Agent **BẮT BUỘC** phải tiến hành phân tích nguyên nhân gốc rễ (RCA) bằng cách đọc code thực tế thay vì đoán mò. 
