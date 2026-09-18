@@ -24,8 +24,9 @@ Khi xử lý một chức năng, Agent rất dễ bị "ảo giác" (hallucinate
 2. Tạo và chuyển sang nhánh mới cho riêng ticket này: `git checkout -b feature/<ticket-number>-<ticket-id>`.
 
 ### Bước 1: Phân tích & Thiết kế Kiến trúc (Senior BA & Architect)
-**Mục tiêu:** Hiểu rõ yêu cầu và chốt hạ toàn bộ kiến trúc & API Contract trước khi viết code.
+**Mục tiêu:** Hiểu rõ yêu cầu và chốt hạ toàn bộ kiến trúc & API Contract trước khi viết code. Đảm bảo kế thừa trọn vẹn tri thức từ các ticket trước.
 **Chi tiết công việc:**
+0. **[RẤT QUAN TRỌNG]:** BẮT BUỘC phải đọc file `.memory/tickets_requirements_snapshot.md` và `.memory/workflow_rules.md` để nắm được bức tranh tổng thể, kiến trúc Mock Mode Fallback, Audio gTTS, Pillow Caching và các Anti-patterns cần tránh. Nếu bỏ qua bước này, hệ thống sẽ gãy đổ.
 1. Đọc yêu cầu từ user hoặc từ file `TALOTRACE_CHALLENGE.md`. Trích xuất các Acceptance Criteria (AC) rõ ràng.
 2. Thiết kế Request/Response Schemas sử dụng Pydantic v2 (Strict Type).
 3. Thiết kế luồng xử lý Asynchronous (ví dụ: Tạo Job -> Trả 202 Accepted -> Background Task xử lý).

@@ -5,7 +5,7 @@ import logging
 import asyncio
 import subprocess
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
 from gtts import gTTS
 
 logger = logging.getLogger(__name__)
@@ -25,6 +25,7 @@ class VideoAssembler:
         self.width = 1920
         self.height = 1080
         self.fps = 30
+        self.bg_cache = {}
         
         # Cấu hình UI
         self.bg_color_top = (15, 23, 42)    # Slate 900
@@ -96,6 +97,7 @@ class VideoAssembler:
     def _parse_scenes(self, query: str, script: str) -> list[Scene]:
         """Tách answer dài thành nhiều trang. Đảm bảo thời gian đọc."""
         # Chuẩn hóa
+        script = script.replace("Script:", "").strip()
         script = script.replace("Kịch bản:", "").strip()
         sentences = [s.strip() for s in script.split('.') if s.strip()]
         
@@ -177,9 +179,40 @@ class VideoAssembler:
         if hasattr(font, 'getsize'): return font.getsize(text)[0]
         return len(text) * 20
 
+    def _get_bg_image(self, query: str) -> Image.Image:
+        """Load and map background image based on query with caching"""
+        q = query.lower()
+        if "ph scale" in q:
+            img_path = "src/assets/images/ph_scale.jpg"
+        elif "difference" in q or "ionic" in q:
+            img_path = "src/assets/images/ionic_vs_covalent.jpg"
+        elif "covalent" in q:
+            img_path = "src/assets/images/covalent.jpg"
+        else:
+            return self.static_bg.copy()
+            
+        if img_path in self.bg_cache:
+            return self.bg_cache[img_path].copy()
+            
+        if not os.path.exists(img_path):
+            return self.static_bg.copy()
+            
+        try:
+            bg = Image.open(img_path).convert('RGBA')
+            bg = ImageOps.fit(bg, (self.width, self.height), Image.Resampling.LANCZOS)
+            
+            # Dark overlay (60% black)
+            overlay = Image.new('RGBA', bg.size, (0, 0, 0, int(255 * 0.6)))
+            bg.alpha_composite(overlay)
+            
+            self.bg_cache[img_path] = bg
+            return bg.copy()
+        except Exception:
+            return self.static_bg.copy()
+
     def _render_frame(self, scene: Scene, time_in_scene: float) -> np.ndarray:
-        # Base background
-        frame = self.static_bg.copy().convert('RGBA')
+        # Base background mapped to query
+        frame = self._get_bg_image(scene.query)
         draw = ImageDraw.Draw(frame)
         
         # Calculate Animation (Fade)
